@@ -63,16 +63,16 @@ class Client {
     return new UserTokens($result['refresh_token'], $result['access_token'], $result['expires_in'] + time());
   }
 
-  public function createUser($email=null, $phone=null, $customerUid=null) {
+  public function createUser($opts) {
     $payload = array();
-    if ($email != null) {
-      $payload['email'] = $email;
+    if (array_key_exists('email', $opts)) {
+      $payload['email'] = $opts['email'];
     }
-    if ($phone != null) {
-      $payload['phone'] = $phone;
+    if (array_key_exists('phone', $opts)) {
+      $payload['phone'] = $opts['phone'];
     }
-    if ($customerUid != null) {
-      $payload['customer_uid'] = $customerUid;
+    if (array_key_exists('customerUid', $opts)) {
+      $payload['customer_uid'] = $opts['customerUid'];
     }
     return $this->fetchTokens("/v0/users", $payload);
   }

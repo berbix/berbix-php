@@ -34,24 +34,34 @@ class HTTPClient {
 }
 
 
-class UserTokens {
+class Tokens {
   public $refreshToken;
   public $accessToken;
+  public $clientToken;
   public $expiry;
+  public $transactionId;
 
-  public function __construct($refresh, $access=null, $exp=null) {
-    $this->refreshToken = $refresh;
-    $this->accessToken = $access;
-    $this->expiry = $exp;
+  public function __construct($refreshToken, $accessToken=null, $clientToken=null, $expiry=null, $transactionId=null) {
+    $this->refreshToken = $refreshToken;
+    $this->accessToken = $accessToken;
+    $this->clientToken = $clientToken;
+    $this->expiry = $expiry;
+    $this->transactionId = $transactionId;
   }
 
-  public function refresh($access, $exp) {
-    $this->accessToken = $access;
-    $this->expiry = $exp;
+  public function refresh($accessToken, $clientToken, $expiry, $transactionId) {
+    $this->accessToken = $accessToken;
+    $this->clientToken = $clientToken;
+    $this->expiry = $expiry;
+    $this->transactionId = $transactionId;
   }
 
   public function needsRefresh() {
     return $this->accessToken == null || $this->expiry == null || $this->expiry < time();
+  }
+
+  public static function fromRefresh($refreshToken) {
+    return new Tokens($refreshToken);
   }
 }
 
@@ -62,14 +72,15 @@ class Client {
   private $apiHost;
   private $httpClient;
 
-  public function __construct($cId=null, $cSecret=null, $host="https://api.berbix.com", $http=null) {
-    $this->clientId = $cId;
-    $this->clientSecret = $cSecret;
-    $this->apiHost = $host;
-    if ($http == null) {
-      $this->httpClient = new HTTPClient();
+  public function __construct($clientId=null, $clientSecret=null, $opts=array()) {
+    $this->clientId = $clientId;
+    $this->clientSecret = $clientSecret;
+    $this->apiHost = $this->getApiHost($opts);
+
+    if (array_key_exists('httpClient', $opts)) {
+      $this->httpClient = $opts['httpClient'];
     } else {
-      $this->httpClient = $http;
+      $this->httpClient = new HTTPClient();
     }
 
     if ($this->clientId == null) {
@@ -90,10 +101,37 @@ class Client {
 
     $result = $this->httpClient->makeRequest("POST", $url, $headers, $payload);
 
-    return new UserTokens($result['refresh_token'], $result['access_token'], $result['expires_in'] + time());
+    return new Tokens(
+      $result['refresh_token'],
+      $result['access_token'],
+      $result['client_token'],
+      $result['expires_in'] + time(),
+      $result['user_id']);
   }
 
-  public function createUser($opts) {
+  private function getApiHost($opts) {
+    if (array_key_exists('apiHost', $opts)) {
+      return $opts['apiHost'];
+    }
+
+    $env = 'production';
+    if (array_key_exists('environment', $opts)) {
+      $env = $opts['environment'];
+    }
+
+    switch ($env) {
+      case 'sandbox':
+        return 'https://api.sandbox.berbix.com';
+      case 'staging':
+        return 'https://api.staging.berbix.com';
+      case 'production':
+        return 'https://api.berbix.com';
+      default:
+        throw new \Exception("invalid environment provided");
+    }
+  }
+
+  public function createTransaction($opts) {
     $payload = array();
     if (array_key_exists('email', $opts)) {
       $payload['email'] = $opts['email'];
@@ -104,16 +142,22 @@ class Client {
     if (array_key_exists('customerUid', $opts)) {
       $payload['customer_uid'] = $opts['customerUid'];
     }
-    return $this->fetchTokens("/v0/users", $payload);
+    return $this->fetchTokens("/v0/transactions", $payload);
   }
 
-  public function refreshTokens($userTokens) {
+  // This method is deprecated - please use createTransaction instead
+  public function createUser($opts) {
+    return $this->createTransaction($opts);
+  }
+
+  public function refreshTokens($tokens) {
     return $this->fetchTokens("/v0/tokens", array(
-      'refresh_token' => $userTokens->refreshToken,
+      'refresh_token' => $tokens->refreshToken,
       'grant_type' => 'refresh_token',
     ));
   }
 
+  // This method is deprecated - please use createTransaction instead
   public function exchangeCode($code) {
     return $this->fetchTokens("/v0/tokens", array(
       'code' => $code,
@@ -121,32 +165,38 @@ class Client {
     ));
   }
 
-  private function refreshIfNecessary($userTokens) {
-    if ($userTokens->needsRefresh()) {
-      $refreshed = $this->refreshTokens($userTokens);
-      $userTokens->refresh($refreshed->accessToken, $refreshed->expiry);
+  private function refreshIfNecessary($tokens) {
+    if ($tokens->needsRefresh()) {
+      $refreshed = $this->refreshTokens($tokens);
+      $tokens->refresh($refreshed->accessToken, $refreshed->clientToken, $refreshed->expiry, $refreshed->transactionId);
     }
   }
 
-  private function tokenAuthRequest($method, $userTokens, $path) {
-    $this->refreshIfNecessary($userTokens);
+  private function tokenAuthRequest($method, $tokens, $path) {
+    $this->refreshIfNecessary($tokens);
 
     $url = $this->apiHost . $path;
 
     $headers = array(
       'Content-Type: application/json',
-      'Authorization: Token ' . $userTokens->accessToken,
+      'Authorization: Token ' . $tokens->accessToken,
     );
 
     return $this->httpClient->makeRequest($method, $url, $headers);
   }
 
-  public function fetchUser($userTokens) {
-    return $this->tokenAuthRequest('GET', $userTokens, '/v0/users');
+  public function fetchTransaction($tokens) {
+    return $this->tokenAuthRequest('GET', $tokens, '/v0/transactions');
   }
 
-  public function createContinuation($userTokens) {
-    $result = $this->tokenAuthRequest('POST', $userTokens, '/v0/continuations');
+  // This method is deprecated - please use fetchTransaction instead
+  public function fetchUser($tokens) {
+    return $this->fetchTransaction($tokens);
+  }
+
+  // This method is deprecated - please get clientToken from refresh
+  public function createContinuation($tokens) {
+    $result = $this->tokenAuthRequest('POST', $tokens, '/v0/continuations');
     return $result['value'];
   }
 }

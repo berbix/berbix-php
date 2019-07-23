@@ -2,6 +2,7 @@
 
 namespace Berbix;
 
+define('SDK_VERSION', '0.0.1');
 
 class HTTPClient {
   public function makeRequest($method, $url, $headers, $payload=null) {
@@ -97,6 +98,7 @@ class Client {
     $headers = array(
       "Content-Type: application/json",
       "Authorization: Basic " . base64_encode($this->clientId . ":" . $this->clientSecret),
+      "User-Agent: BerbixPHP/" . SDK_VERSION,
     );
 
     $result = $this->httpClient->makeRequest("POST", $url, $headers, $payload);
@@ -183,6 +185,7 @@ class Client {
     $headers = array(
       'Content-Type: application/json',
       'Authorization: Token ' . $tokens->accessToken,
+      "User-Agent: BerbixPHP/" . SDK_VERSION,
     );
 
     return $this->httpClient->makeRequest($method, $url, $headers);

@@ -142,6 +142,9 @@ class Client {
     if (array_key_exists('customerUid', $opts)) {
       $payload['customer_uid'] = $opts['customerUid'];
     }
+    if (array_key_exists('templateKey', $opts)) {
+      $payload['template_key'] = $opts['templateKey'];
+    }
     return $this->fetchTokens("/v0/transactions", $payload);
   }
 

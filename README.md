@@ -17,6 +17,7 @@ This Berbix PHP library provides simple interfaces to interact with the Berbix A
 
     $transactionTokens = $client->createTransaction(array(
       'customerUid' => "interal_customer_uid", // ID for the user in internal database
+      'templateKey' => "your_template_key", // Template key for this transaction
     ));
 
 ### Create tokens from refresh token
@@ -52,6 +53,7 @@ Supported options:
  * `email` - Previously verified email address for a user.
  * `phone` - Previously verified phone number for a user.
  * `customerUid` - An ID or identifier for the user in your system.
+ * `templateKey` - The template key for this transaction.
 
 ##### `fetchTransaction(tokens: Tokens): object`
 

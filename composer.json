@@ -1,0 +1,20 @@
+{
+  "name": "berbix/berbix-php",
+  "type": "library",
+  "description": "PHP SDK for interacting with the Berbix API",
+  "keywords": [
+    "berbix",
+    "identity verification",
+    "api"
+  ],
+  "homepage": "https://berbix.com",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "Eric Levine",
+          "email": "eric@berbix.com",
+          "homepage": "https://berbix.com",
+          "role": "Co-founder"
+      }
+  ]
+}

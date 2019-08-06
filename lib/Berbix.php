@@ -3,6 +3,7 @@
 namespace Berbix;
 
 define('SDK_VERSION', '0.0.1');
+define('CLOCK_DRIFT', 300);
 
 class HTTPClient {
   public function makeRequest($method, $url, $headers, $payload=null) {
@@ -204,6 +205,19 @@ class Client {
   public function createContinuation($tokens) {
     $result = $this->tokenAuthRequest('POST', $tokens, '/v0/continuations');
     return $result['value'];
+  }
+
+  public function validateSignature($secret, $body, $header) {
+    $parts = explode(',', $header, 3);
+    // Version is currently unused in $parts[0]
+    $timestamp = $parts[1];
+    $signature = $parts[2];
+    if (intval($timestamp) < time() - CLOCK_DRIFT) {
+      return false;
+    }
+    $toSign = $timestamp . ',' . $secret . ',' . $body;
+    $digest = hash_hmac('sha256', $toSign, $secret);
+    return $digest == $signature;
   }
 }
 

@@ -143,7 +143,7 @@ class Client {
       $payload['phone'] = $opts['phone'];
     }
     if (array_key_exists('customerUid', $opts)) {
-      $payload['customer_uid'] = $opts['customerUid'];
+      $payload['customer_uid'] = '' . $opts['customerUid'];
     }
     if (array_key_exists('templateKey', $opts)) {
       $payload['template_key'] = $opts['templateKey'];

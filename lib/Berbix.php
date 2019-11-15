@@ -69,14 +69,17 @@ class Tokens {
 
 
 class Client {
-  private $clientId;
   private $clientSecret;
   private $apiHost;
   private $httpClient;
 
-  public function __construct($clientId=null, $clientSecret=null, $opts=array()) {
-    $this->clientId = $clientId;
-    $this->clientSecret = $clientSecret;
+  public function __construct($apiSecret=null, $opts=array(), $oldOpts=array()) {
+    if (is_string($opts)) {
+      $apiSecret = $opts;
+      $opts = $oldOpts;
+    }
+
+    $this->apiSecret = $apiSecret;
     $this->apiHost = $this->getApiHost($opts);
 
     if (array_key_exists('httpClient', $opts)) {
@@ -85,11 +88,8 @@ class Client {
       $this->httpClient = new HTTPClient();
     }
 
-    if ($this->clientId == null) {
-      throw new \Exception("clientId must be provided");
-    }
-    if ($this->clientSecret == null) {
-      throw new \Exception("clientSecret must be provided");
+    if ($this->apiSecret == null) {
+      throw new \Exception("apiSecret must be provided");
     }
   }
 
@@ -98,7 +98,7 @@ class Client {
 
     $headers = array(
       "Content-Type: application/json",
-      "Authorization: Basic " . base64_encode($this->clientId . ":" . $this->clientSecret),
+      "Authorization: Basic " . base64_encode($this->apiSecret . ":"),
       "User-Agent: BerbixPHP/" . SDK_VERSION,
     );
 

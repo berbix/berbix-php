@@ -10,11 +10,16 @@
   "homepage": "https://berbix.com",
   "license": "MIT",
   "authors": [
-      {
-          "name": "Eric Levine",
-          "email": "eric@berbix.com",
-          "homepage": "https://berbix.com",
-          "role": "Co-founder"
-      }
-  ]
+    {
+      "name": "Eric Levine",
+      "email": "eric@berbix.com",
+      "homepage": "https://berbix.com",
+      "role": "Co-founder"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Berbix\\": "lib/"
+    }
+  }
 }

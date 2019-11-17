@@ -10,8 +10,7 @@ This Berbix PHP library provides simple interfaces to interact with the Berbix A
     require_once('/path/to/berbix-php/init.php');
 
     $client = new \Berbix\Client(
-      "your_client_id_here",
-      "your_client_secret_here");
+      "your_api_secret_here");
 
 ### Create a transaction
 
@@ -28,7 +27,7 @@ This Berbix PHP library provides simple interfaces to interact with the Berbix A
 ### Fetch transaction data
 
     $transactionData = $client->fetchTransaction($transactionTokens);
- 
+
 ## Reference
 
 ### `Client`
@@ -39,8 +38,8 @@ This Berbix PHP library provides simple interfaces to interact with the Berbix A
 
 Supported options:
 
- * `environment` - Which environment the client uses, defaults to production.
- * `httpClient` - An optional override for the default PHP HTTP client.
+- `environment` - Which environment the client uses, defaults to production.
+- `httpClient` - An optional override for the default PHP HTTP client.
 
 ##### `createTransaction(options): Tokens`
 
@@ -50,10 +49,10 @@ currently active user session.
 
 Supported options:
 
- * `email` - Previously verified email address for a user.
- * `phone` - Previously verified phone number for a user.
- * `customerUid` - An ID or identifier for the user in your system.
- * `templateKey` - The template key for this transaction.
+- `email` - Previously verified email address for a user.
+- `phone` - Previously verified phone number for a user.
+- `customerUid` - An ID or identifier for the user in your system.
+- `templateKey` - The template key for this transaction.
 
 ##### `fetchTransaction(tokens: Tokens): object`
 

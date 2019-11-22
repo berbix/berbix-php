@@ -2,7 +2,7 @@
 
 namespace Berbix;
 
-define('SDK_VERSION', '0.0.3');
+define('SDK_VERSION', '0.0.4');
 define('CLOCK_DRIFT', 300);
 
 class HTTPClient {

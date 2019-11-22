@@ -63,6 +63,10 @@ Fetches all of the information associated with the transaction. If the user has 
 This is typically not needed to be called explicitly as it will be called by the higher-level
 SDK methods, but can be used to get fresh client or access tokens.
 
+##### `deleteTransaction(tokens: Tokens): void`
+
+Permanently deletes all submitted data associated with the transaction corresponding to the tokens provided.
+
 ### `Tokens`
 
 #### Properties

@@ -16,6 +16,10 @@ class HTTPClient {
       curl_setopt($curl, CURLOPT_POST, true);
     }
 
+    if ($method == 'DELETE') {
+      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+    }
+
     if ($payload != null) {
       $content = json_encode($payload);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
@@ -194,6 +198,10 @@ class Client {
 
   public function fetchTransaction($tokens) {
     return $this->tokenAuthRequest('GET', $tokens, '/v0/transactions');
+  }
+
+  public function deleteTransaction($tokens) {
+    $this->tokenAuthRequest('DELETE', $tokens, '/v0/transactions');
   }
 
   // This method is deprecated - please use fetchTransaction instead

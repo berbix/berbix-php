@@ -36,4 +36,6 @@ $transaction = $client->fetchTransaction($refreshOnly);
 var_dump($refreshOnly);
 var_dump($refreshed);
 
+$client->deleteTransaction($manTokens);
+
 ?>

@@ -22,7 +22,7 @@ This Berbix PHP library provides simple interfaces to interact with the Berbix A
 ### Create tokens from refresh token
 
     $refreshToken = ''; // fetched from database
-    $transactionTokens = new \Berbix\Tokens::fromRefresh($refreshToken);
+    $transactionTokens = \Berbix\Tokens::fromRefresh($refreshToken);
 
 ### Fetch transaction data
 

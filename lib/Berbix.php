@@ -10,7 +10,6 @@ class HTTPClient {
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_HEADER, false);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
     if ($method == 'POST') {
       curl_setopt($curl, CURLOPT_POST, true);
@@ -22,8 +21,11 @@ class HTTPClient {
 
     if ($payload != null) {
       $content = json_encode($payload);
+      array_push($headers, "Content-Length: " . strlen($content));
       curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
     }
+
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
     $json_response = curl_exec($curl);
 

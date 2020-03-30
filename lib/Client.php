@@ -2,79 +2,12 @@
 
 namespace Berbix;
 
-define('SDK_VERSION', '0.0.5');
-define('CLOCK_DRIFT', 300);
-
-class HTTPClient {
-  public function makeRequest($method, $url, $headers, $payload=null) {
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_HEADER, false);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-    if ($method == 'POST') {
-      curl_setopt($curl, CURLOPT_POST, true);
-    }
-
-    if ($method == 'DELETE') {
-      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-    }
-
-    if ($payload != null) {
-      $content = json_encode($payload);
-      array_push($headers, "Content-Length: " . strlen($content));
-      curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
-    }
-
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-    $json_response = curl_exec($curl);
-
-    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-    if ($status < 200 || $status >= 300) {
-      throw new \Exception("unexpected status code returned $status, response was $json_response");
-    }
-
-    curl_close($curl);
-
-    return json_decode($json_response, true);
-  }
-}
-
-
-class Tokens {
-  public $refreshToken;
-  public $accessToken;
-  public $clientToken;
-  public $expiry;
-  public $transactionId;
-
-  public function __construct($refreshToken, $accessToken=null, $clientToken=null, $expiry=null, $transactionId=null) {
-    $this->refreshToken = $refreshToken;
-    $this->accessToken = $accessToken;
-    $this->clientToken = $clientToken;
-    $this->expiry = $expiry;
-    $this->transactionId = $transactionId;
-  }
-
-  public function refresh($accessToken, $clientToken, $expiry, $transactionId) {
-    $this->accessToken = $accessToken;
-    $this->clientToken = $clientToken;
-    $this->expiry = $expiry;
-    $this->transactionId = $transactionId;
-  }
-
-  public function needsRefresh() {
-    return $this->accessToken == null || $this->expiry == null || $this->expiry < time();
-  }
-
-  public static function fromRefresh($refreshToken) {
-    return new Tokens($refreshToken);
-  }
-}
-
+use Exception;
 
 class Client {
+  const CLOCK_DRIFT = 300;
+  const SDK_VERSION = '0.0.5';
+
   private $clientSecret;
   private $apiHost;
   private $httpClient;
@@ -95,7 +28,7 @@ class Client {
     }
 
     if ($this->apiSecret == null) {
-      throw new \Exception("apiSecret must be provided");
+      throw new Exception("apiSecret must be provided");
     }
   }
 
@@ -105,7 +38,7 @@ class Client {
     $headers = array(
       "Content-Type: application/json",
       "Authorization: Basic " . base64_encode($this->apiSecret . ":"),
-      "User-Agent: BerbixPHP/" . SDK_VERSION,
+      "User-Agent: BerbixPHP/" . static::SDK_VERSION,
     );
 
     $result = $this->httpClient->makeRequest("POST", $url, $headers, $payload);
@@ -136,7 +69,7 @@ class Client {
       case 'production':
         return 'https://api.berbix.com';
       default:
-        throw new \Exception("invalid environment provided");
+        throw new Exception("invalid environment provided");
     }
   }
 
@@ -192,7 +125,7 @@ class Client {
     $headers = array(
       'Content-Type: application/json',
       'Authorization: Token ' . $tokens->accessToken,
-      "User-Agent: BerbixPHP/" . SDK_VERSION,
+      "User-Agent: BerbixPHP/" . static::SDK_VERSION,
     );
 
     return $this->httpClient->makeRequest($method, $url, $headers);
@@ -222,7 +155,7 @@ class Client {
     // Version is currently unused in $parts[0]
     $timestamp = $parts[1];
     $signature = $parts[2];
-    if (intval($timestamp) < time() - CLOCK_DRIFT) {
+    if (intval($timestamp) < time() - static::CLOCK_DRIFT) {
       return false;
     }
     $toSign = $timestamp . ',' . $secret . ',' . $body;
@@ -230,5 +163,3 @@ class Client {
     return $digest == $signature;
   }
 }
-
-?>

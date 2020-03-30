@@ -1,6 +1,6 @@
 <?php
 
-require_once('../init.php');
+require __DIR__ . '../vendor/autoload.php';
 
 $client = new \Berbix\Client(
   getenv("BERBIX_DEMO_CLIENT_SECRET"),

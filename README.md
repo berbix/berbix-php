@@ -2,31 +2,43 @@
 
 This Berbix PHP library provides simple interfaces to interact with the Berbix API.
 
+## Installation
+
+You can install the library through Composer.
+
+```sh
+composer require berbix/berbix-php
+```
+
 ## Usage
 
 ### Constructing a client
 
-    // Import the Berbix PHP library
-    require_once('/path/to/berbix-php/init.php');
-
-    $client = new \Berbix\Client(
-      "your_api_secret_here");
+```php
+$client = new \Berbix\Client("your_api_secret_here");
+```
 
 ### Create a transaction
 
-    $transactionTokens = $client->createTransaction(array(
-      'customerUid' => "interal_customer_uid", // ID for the user in internal database
-      'templateKey' => "your_template_key", // Template key for this transaction
-    ));
+```php
+$transactionTokens = $client->createTransaction(array(
+  'customerUid' => "interal_customer_uid", // ID for the user in internal database
+  'templateKey' => "your_template_key", // Template key for this transaction
+));
+```
 
 ### Create tokens from refresh token
 
-    $refreshToken = ''; // fetched from database
-    $transactionTokens = \Berbix\Tokens::fromRefresh($refreshToken);
+```php
+$refreshToken = ''; // fetched from database
+$transactionTokens = \Berbix\Tokens::fromRefresh($refreshToken);
+```
 
 ### Fetch transaction data
 
-    $transactionData = $client->fetchTransaction($transactionTokens);
+```php
+$transactionData = $client->fetchTransaction($transactionTokens);
+```
 
 ## Reference
 

@@ -14,8 +14,8 @@ class HTTPClient {
       curl_setopt($curl, CURLOPT_POST, true);
     }
 
-    if ($method == 'DELETE') {
-      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+    if ($method == 'DELETE' || $method == 'PATCH') {
+      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
     }
 
     if ($payload != null) {

@@ -22,7 +22,7 @@ $client = new \Berbix\Client("your_api_secret_here");
 
 ```php
 $transactionTokens = $client->createTransaction(array(
-  'customerUid' => "interal_customer_uid", // ID for the user in internal database
+  'customerUid' => "internal_customer_uid", // ID for the user in internal database
   'templateKey' => "your_template_key", // Template key for this transaction
 ));
 ```
@@ -88,6 +88,24 @@ Parameters:
 ##### `deleteTransaction(tokens: Tokens): void`
 
 Permanently deletes all submitted data associated with the transaction corresponding to the tokens provided.
+
+##### `updateTransaction(tokens: Tokens, parameters: object): object`
+
+Changes a transaction's "action", for example upon review in your systems. Returns the updated transaction upon success.
+
+Parameters:
+
+- `action: string` - A string describing the action taken on the transaction. Typically this will either be "accept" or "reject".
+- `note: string` - A string containing an optional note explaining the action taken.
+
+##### `overrideTransaction(tokens: Tokens, parameters: object): void`
+
+Completes a previously created transaction, and overrides its return payload and flags to match the provided parameters.
+
+Parameters:
+
+- `responsePayload: string` - A string describing the payload type to return when fetching transaction metadata, e.g. "us-dl". See [our testing guide](https://docs.berbix.com/docs/testing) for possible options.
+- `flags: string[]` - An optional list of flags to associate with the transaction (independent of the payload's contents), e.g. ["id_under_18", "id_under_21"]. See [our flags documentation](https://docs.berbix.com/docs/id-flags) for a list of flags.
 
 ### `Tokens`
 

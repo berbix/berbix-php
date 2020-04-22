@@ -6,7 +6,7 @@ use Exception;
 
 class Client {
   const CLOCK_DRIFT = 300;
-  const SDK_VERSION = '1.0.1';
+  const SDK_VERSION = '1.0.2';
 
   private $clientSecret;
   private $apiHost;

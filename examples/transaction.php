@@ -27,6 +27,7 @@ var_dump($refreshed);
 $transaction = $client->overrideTransaction($tokens, array(
   'responsePayload' => 'us-dl',
   'flags' => array('id_under_18', 'id_under_21'),
+  'override_fields' => array('date_of_birth' => '2000-12-09'),
 ));
 
 var_dump($transaction);

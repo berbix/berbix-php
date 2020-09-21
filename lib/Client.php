@@ -6,7 +6,7 @@ use Exception;
 
 class Client {
   const CLOCK_DRIFT = 300;
-  const SDK_VERSION = '1.0.2';
+  const SDK_VERSION = '1.0.3';
 
   private $clientSecret;
   private $apiHost;
@@ -143,6 +143,9 @@ class Client {
     }
     if (array_key_exists('flags', $params)) {
       $payload['flags'] = $params['flags'];
+    }
+    if (array_key_exists('overrideFields', $params)) {
+      $payload['override_fields'] = $params['overrideFields'];
     }
     $this->tokenAuthRequest('PATCH', $tokens, '/v0/transactions/override', $payload);
   }

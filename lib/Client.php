@@ -144,8 +144,8 @@ class Client {
     if (array_key_exists('flags', $params)) {
       $payload['flags'] = $params['flags'];
     }
-    if (array_key_exists('override_fields', $params)) {
-      $payload['override_fields'] = $params['override_fields'];
+    if (array_key_exists('overrideFields', $params)) {
+      $payload['override_fields'] = $params['overrideFields'];
     }
     $this->tokenAuthRequest('PATCH', $tokens, '/v0/transactions/override', $payload);
   }

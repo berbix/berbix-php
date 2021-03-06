@@ -8,13 +8,15 @@ class Tokens {
   public $clientToken;
   public $expiry;
   public $transactionId;
+  public $response; 
 
-  public function __construct($refreshToken, $accessToken=null, $clientToken=null, $expiry=null, $transactionId=null) {
+  public function __construct($refreshToken, $accessToken=null, $clientToken=null, $expiry=null, $transactionId=null, $response=null) {
     $this->refreshToken = $refreshToken;
     $this->accessToken = $accessToken;
     $this->clientToken = $clientToken;
     $this->expiry = $expiry;
     $this->transactionId = $transactionId;
+    $this->response = $response;
   }
 
   public function refresh($accessToken, $clientToken, $expiry, $transactionId) {

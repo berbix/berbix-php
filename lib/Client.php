@@ -6,18 +6,13 @@ use Exception;
 
 class Client {
   const CLOCK_DRIFT = 300;
-  const SDK_VERSION = '1.0.3';
+  const SDK_VERSION = '2.0.0';
 
   private $clientSecret;
   private $apiHost;
   private $httpClient;
 
-  public function __construct($apiSecret=null, $opts=array(), $oldOpts=array()) {
-    if (is_string($opts)) {
-      $apiSecret = $opts;
-      $opts = $oldOpts;
-    }
-
+  public function __construct(string $apiSecret=null, array $opts=array()) {
     $this->apiSecret = $apiSecret;
     $this->apiHost = $this->getApiHost($opts);
 
@@ -32,7 +27,7 @@ class Client {
     }
   }
 
-  private function fetchTokens($path, $payload) {
+  private function fetchTokens(string $path, array $payload): Tokens {
     $url = $this->apiHost . $path;
 
     $headers = array(
@@ -48,33 +43,19 @@ class Client {
       $result['access_token'],
       $result['client_token'],
       $result['expires_in'] + time(),
-      $result['user_id']);
+      $result['transaction_id'],
+      $result);
   }
 
-  private function getApiHost($opts) {
+  private function getApiHost(array $opts): string {
     if (array_key_exists('apiHost', $opts)) {
       return $opts['apiHost'];
     }
 
-    $env = 'production';
-    if (array_key_exists('environment', $opts)) {
-      $env = $opts['environment'];
-    }
-
-    switch ($env) {
-      case 'sandbox':
-        return 'https://api.sandbox.berbix.com';
-      case 'staging':
-        return 'https://api.staging.berbix.com';
-      case 'production':
-        return 'https://api.berbix.com';
-      default:
-        throw new Exception("invalid environment provided");
-    }
+    return 'https://api.berbix.com';
   }
 
-  public function createTransaction($opts) {
-    $payload = array();
+  private function parseCreateTransactionOptions(array $opts, array $payload): array {
     if (array_key_exists('email', $opts)) {
       $payload['email'] = $opts['email'];
     }
@@ -87,24 +68,47 @@ class Client {
     if (array_key_exists('templateKey', $opts)) {
       $payload['template_key'] = $opts['templateKey'];
     }
+    return $payload;
+  }
+
+  public function createTransaction(array $opts): Tokens {
+    $payload = array();
+    $payload = $this->parseCreateTransactionOptions($opts, $payload);
     return $this->fetchTokens("/v0/transactions", $payload);
   }
 
-  public function refreshTokens($tokens) {
+  public function createHostedTransaction(array $opts): array {
+    $payload = array();
+    $payload = $this->parseCreateTransactionOptions($opts, $payload);
+    $payload['hosted_options'] = (object)[];
+    if (array_key_exists('completionEmail', $opts)) {
+      $payload['hosted_options']['completion_email'] = $opts['completionEmail'];
+    }
+    if (array_key_exists('redirectUrl', $opts)) {
+      $payload['hosted_options']['redirect_url'] = $opts['redirectUrl'];
+    }
+    $result = $this->fetchTokens("/v0/transactions", $payload);
+    return array(
+      "tokens" => $result,
+      "hostedUrl" => $result->response['hosted_url'],
+    );
+  }
+
+  public function refreshTokens(Tokens $tokens): Tokens {
     return $this->fetchTokens("/v0/tokens", array(
       'refresh_token' => $tokens->refreshToken,
       'grant_type' => 'refresh_token',
     ));
   }
 
-  private function refreshIfNecessary($tokens) {
+  private function refreshIfNecessary(Tokens $tokens): void {
     if ($tokens->needsRefresh()) {
       $refreshed = $this->refreshTokens($tokens);
       $tokens->refresh($refreshed->accessToken, $refreshed->clientToken, $refreshed->expiry, $refreshed->transactionId);
     }
   }
 
-  private function tokenAuthRequest($method, $tokens, $path, $payload=null) {
+  private function tokenAuthRequest(string $method, Tokens $tokens, string $path, array $payload=null) {
     $this->refreshIfNecessary($tokens);
 
     $url = $this->apiHost . $path;
@@ -117,15 +121,15 @@ class Client {
     return $this->httpClient->makeRequest($method, $url, $headers, $payload);
   }
 
-  public function fetchTransaction($tokens) {
+  public function fetchTransaction(Tokens $tokens): array {
     return $this->tokenAuthRequest('GET', $tokens, '/v0/transactions');
   }
 
-  public function deleteTransaction($tokens) {
+  public function deleteTransaction(Tokens $tokens): void {
     $this->tokenAuthRequest('DELETE', $tokens, '/v0/transactions');
   }
 
-  public function updateTransaction($tokens, $params) {
+  public function updateTransaction(Tokens $tokens, array $params): void {
     $payload = array();
     if (array_key_exists('action', $params)) {
       $payload['action'] = $params['action'];
@@ -136,7 +140,7 @@ class Client {
     $this->tokenAuthRequest('PATCH', $tokens, '/v0/transactions', $payload);
   }
 
-  public function overrideTransaction($tokens, $params) {
+  public function overrideTransaction(Tokens $tokens, array $params): void {
     $payload = array();
     if (array_key_exists('responsePayload', $params)) {
       $payload['response_payload'] = $params['responsePayload'];
@@ -150,7 +154,7 @@ class Client {
     $this->tokenAuthRequest('PATCH', $tokens, '/v0/transactions/override', $payload);
   }
 
-  public function validateSignature($secret, $body, $header) {
+  public function validateSignature(string $secret, string $body, string $header) {
     $parts = explode(',', $header, 3);
     // Version is currently unused in $parts[0]
     $timestamp = $parts[1];
@@ -161,29 +165,5 @@ class Client {
     $toSign = $timestamp . ',' . $secret . ',' . $body;
     $digest = hash_hmac('sha256', $toSign, $secret);
     return $digest == $signature;
-  }
-
-  // This method is deprecated - please use createTransaction instead
-  public function createUser($opts) {
-    return $this->createTransaction($opts);
-  }
-  
-  // This method is deprecated - please use createTransaction instead
-  public function exchangeCode($code) {
-    return $this->fetchTokens("/v0/tokens", array(
-      'code' => $code,
-      'grant_type' => 'authorization_code',
-    ));
-  }
-
-  // This method is deprecated - please use fetchTransaction instead
-  public function fetchUser($tokens) {
-    return $this->fetchTransaction($tokens);
-  }
-
-  // This method is deprecated - please get clientToken from refresh
-  public function createContinuation($tokens) {
-    $result = $this->tokenAuthRequest('POST', $tokens, '/v0/continuations');
-    return $result['value'];
   }
 }

@@ -80,7 +80,7 @@ class Client {
   public function createHostedTransaction(array $opts): array {
     $payload = array();
     $payload = $this->parseCreateTransactionOptions($opts, $payload);
-    $payload['hosted_options'] = (object)[];
+    $payload['hosted_options'] = [];
     if (array_key_exists('completionEmail', $opts)) {
       $payload['hosted_options']['completion_email'] = $opts['completionEmail'];
     }

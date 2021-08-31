@@ -2,6 +2,8 @@
 
 This Berbix PHP library provides simple interfaces to interact with the Berbix API.
 
+PHP 7 or greater is required to use this API library.
+
 ## Installation
 
 You can install the library through Composer.

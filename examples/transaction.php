@@ -9,6 +9,8 @@ $client = new \Berbix\Client(
 $hosted = $client->createHostedTransaction(array(
   'customerUid' => 9876,
   'templateKey' => getenv("BERBIX_DEMO_TEMPLATE_KEY"),
+  'completionEmail' => 'completion@example.com',
+  'redirectUrl' => "our redirect url"
 ));
 
 if ($hosted['hostedUrl'] == "") {

@@ -78,7 +78,7 @@ class Client {
         $payload['match_data']['family_name'] = $matchData['familyName']
       }
       if (array_key_exists('middleName', $matchData)) {
-        $payload['match_data']['middel_name'] = $matchData['middleName']
+        $payload['match_data']['middle_name'] = $matchData['middleName']
       }
       if (array_key_exists('dateOfBirth', $matchData)) {
         $payload['match_data']['date_of_birth'] = $matchData['dateOfBirth']

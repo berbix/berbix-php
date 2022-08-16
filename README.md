@@ -67,6 +67,12 @@ Supported options:
 - `phone` - Previously verified phone number for a user.
 - `customerUid` - An ID or identifier for the user in your system.
 - `templateKey` - The template key for this transaction.
+- `matchData` - The array of data to compare against the extracted data
+- - `givenName` - given name to match against
+- - `familyName` - family name to match against
+- - `middleName` - middle name to match against
+- - `dateOfBirth` - date of birth to match against
+- - `idExpiryDate` - id expiry date to match against
 
 ##### `createHostedTransaction(array $options): array`
 
@@ -82,6 +88,12 @@ Supported options:
 - `templateKey` - The template key for this transaction.
 - `completionEmail` - The email to send a notification to upon completion.
 - `redirectUrl` - The URL to redirect the user to upon completion.
+- `matchData` - The array of data to compare against the extracted data
+- - `givenName` - given name to match against
+- - `familyName` - family name to match against
+- - `middleName` - middle name to match against
+- - `dateOfBirth` - date of birth to match against
+- - `idExpiryDate` - id expiry date to match against
 
 Returns an associative array with the following values:
 

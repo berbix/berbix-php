@@ -69,22 +69,22 @@ class Client {
       $payload['template_key'] = $opts['templateKey'];
     }
     if (array_key_exists('matchData', $opts)) {
-      $matchData = $opts['matchData']
+      $matchData = $opts['matchData'];
       $payload['match_data'] = array();
       if (array_key_exists('givenName', $matchData)) {
-        $payload['match_data']['given_name'] = $matchData['givenName']
+        $payload['match_data']['given_name'] = $matchData['givenName'];
       }
       if (array_key_exists('familyName', $matchData)) {
-        $payload['match_data']['family_name'] = $matchData['familyName']
+        $payload['match_data']['family_name'] = $matchData['familyName'];
       }
       if (array_key_exists('middleName', $matchData)) {
-        $payload['match_data']['middle_name'] = $matchData['middleName']
+        $payload['match_data']['middle_name'] = $matchData['middleName'];
       }
       if (array_key_exists('dateOfBirth', $matchData)) {
-        $payload['match_data']['date_of_birth'] = $matchData['dateOfBirth']
+        $payload['match_data']['date_of_birth'] = $matchData['dateOfBirth'];
       }
       if (array_key_exists('idExpiryDate', $matchData)) {
-        $payload['match_data']['id_expiry_date'] = $matchData['idExpiryDate']
+        $payload['match_data']['id_expiry_date'] = $matchData['idExpiryDate'];
       }
     }
     return $payload;
